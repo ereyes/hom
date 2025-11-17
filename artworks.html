@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HOM - suvery of artworks</title>
+  
+  <meta name="color-scheme" content="light dark" />
+
+  <!-- Papa Parse to load & parse CSV in the browser -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js" defer></script>
+
+  <style>
+    :root{
+      --bg:            #ffffff;
+      --fg:            #14151a;
+      --muted:         #f4f6f8;
+      --card-bg:       #ffffff;
+      --border:        #e6e8ef;
+      --accent:        #245cff;
+      --shadow:        0 1px 2px rgba(0,0,0,.04), 0 6px 20px rgba(0,0,0,.06);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root{
+        --bg:#0c0d10; --fg:#f6f7fb; --muted:#161a20; --card-bg:#101319; --border:#222733; --accent:#8fb2ff;
+        --shadow: 0 1px 2px rgba(0,0,0,.12), 0 6px 20px rgba(0,0,0,.28);
+      }
+    }
+
+    /* Optional transparent background when used inside an iframe: add ?bg=transparent */
+    html.bg-transparent, html.bg-transparent body { background: transparent !important; }
+
+    * { box-sizing: border-box; }
+    body{
+      margin:0;
+      padding: 12px; /* tighter for embeds */
+      font: 14px/1.55 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial;
+      color:var(--fg);
+      background:var(--bg);
+    }
+    header{ max-width:1100px; margin:0 auto 8px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .sr-only{ position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    #q{
+      border:1px solid var(--border); background:var(--card-bg); color:var(--fg);
+      padding:8px 10px; border-radius:10px; width: min(420px, 100%);
+    }
+    #status{ font-size:12px; opacity:.7; margin-left:auto; }
+
+    .grid{
+      max-width:1100px; margin:0 auto;
+      display:grid; gap:10px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+
+    a.card{
+      display:grid; gap:8px; text-decoration:none; color:inherit;
+      background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:12px;
+      box-shadow: var(--shadow); transition: transform .1s ease, border-color .2s ease;
+    }
+    a.card:hover, a.card:focus-visible{ transform: translateY(-1px); border-color: color-mix(in oklab, var(--accent) 30%, var(--border)); outline:none; }
+
+    .title{ font-weight:670; margin:0; line-height:1.25; font-size:14px; }
+    .meta{ display:flex; align-items:center; flex-wrap:wrap; gap:8px; font-size:12px; color:rgba(127,131,146,.95); }
+    .host{ opacity:.95; }
+    .authors{ opacity:.9; }
+    .badges{ display:flex; flex-wrap:wrap; gap:6px; }
+    .badge{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--border); font-size:11px; opacity:.95; }
+
+    .skeleton{
+      background: linear-gradient(90deg, transparent, rgba(0,0,0,.06), transparent);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      height: 16px; border-radius:6px;
+    }
+    @media (prefers-color-scheme: dark) {
+      .skeleton{ background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent); }
+    }
+    @keyframes shimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+  </style>
+</head>
+<body>
+  <header>
+    <label class="sr-only" for="q">Filter</label>
+    <input id="q" type="search" placeholder="Filter title, authors, type, keyword…" aria-label="Filter" />
+    <div id="status" aria-live="polite"></div>
+  </header>
+
+  <main class="grid" id="grid" aria-busy="true"></main>
+
+  <script>
+  // ---- Configuration ---------------------------------------------------------
+  // You can override the CSV via query string: ?csv=<encoded URL>
+  const params = new URLSearchParams(location.search);
+  const CSV_URL = params.get("csv")
+    ? decodeURIComponent(params.get("csv"))
+    : "https://docs.google.com/spreadsheets/d/e/2PACX-1vSmI3NcIoBkI4yJMqyAqsHAt0cOiyRl79G-0c0kXPlkV1qLLX4LHOe00K5PjlycDOpuy37MyBwldCOG/pub?gid=715690083&single=true&output=csv";
+
+  // Optional: allow transparent background for seamless embedding
+  if ((params.get("bg") || "").toLowerCase() === "transparent") {
+    document.documentElement.classList.add("bg-transparent");
+  }
+
+  // Schema mapping: your exact headers
+  const MAP = {
+    title: "work_title",
+    authors: "authors_names",
+    url: "url",
+    type: "type",
+    year: "year",
+    keyword: "keyword"
+  };
+
+  const $ = (sel, el=document) => el.querySelector(sel);
+  function setStatus(msg){ $('#status').textContent = msg; }
+
+  function get(obj, key){
+    // case-insensitive access
+    const k = Object.keys(obj).find(k => k.toLowerCase() === key.toLowerCase());
+    return k ? (obj[k] ?? "").toString().trim() : "";
+  }
+
+  function hostname(href){
+    try { return new URL(href).hostname.replace(/^www\\./,''); } catch { return href; }
+  }
+
+  function splitKeywords(s){
+    return (s||"").split(/[;,|]/).map(x => x.trim()).filter(Boolean);
+  }
+
+  function makeCard(row){
+    const link = get(row, MAP.url);
+    if (!link) return null;
+
+    const title   = get(row, MAP.title)   || hostname(link);
+    const authors = get(row, MAP.authors);
+    const typ     = get(row, MAP.type);
+    const year    = get(row, MAP.year);
+    const kws     = splitKeywords(get(row, MAP.keyword));
+
+    const card = document.createElement('a');
+    card.className = 'card'; card.href = link; card.target = '_blank'; card.rel = 'noopener noreferrer';
+    card.setAttribute('aria-label', `Open ${title} in new tab`);
+
+    const h = document.createElement('h3'); h.className = 'title'; h.textContent = title;
+
+    const meta = document.createElement('div'); meta.className = 'meta';
+    const host = document.createElement('span'); host.className='host'; host.textContent = hostname(link);
+    meta.appendChild(host);
+    if (authors){ const dot = document.createElement('span'); dot.textContent = '·'; meta.appendChild(dot);
+                 const au = document.createElement('span'); au.className='authors'; au.textContent = authors; meta.appendChild(au); }
+
+    const badges = document.createElement('div'); badges.className = 'badges';
+    if (typ){ const b = document.createElement('span'); b.className='badge'; b.textContent = typ; badges.appendChild(b); }
+    if (year){ const b = document.createElement('span'); b.className='badge'; b.textContent = year; badges.appendChild(b); }
+    for (const k of kws){ const b = document.createElement('span'); b.className='badge'; b.textContent = k; badges.appendChild(b); }
+
+    card.append(h, meta, badges);
+    return card;
+  }
+
+  function showSkeletons(n=6){
+    const g = $('#grid'); g.innerHTML = '';
+    for (let i=0;i<n;i++){
+      const sk = document.createElement('div'); sk.className = 'card';
+      const s1 = document.createElement('div'); s1.className = 'skeleton'; s1.style.width='70%';
+      const s2 = document.createElement('div'); s2.className = 'skeleton'; s2.style.width='40%'; s2.style.marginTop='8px';
+      const s3 = document.createElement('div'); s3.className = 'skeleton'; s3.style.width='55%'; s3.style.marginTop='8px';
+      sk.append(s1,s2,s3); g.append(sk);
+    }
+  }
+
+  function render(rows){
+    const grid = $('#grid'); grid.innerHTML = '';
+    const q = ($('#q').value||'').toLowerCase().trim();
+    const out = [];
+    for (const r of rows){
+      const url = get(r, MAP.url); if (!url) continue;
+      const values = [
+        get(r, MAP.title), get(r, MAP.authors), get(r, MAP.type),
+        get(r, MAP.year), get(r, MAP.keyword), url
+      ].join(' ').toLowerCase();
+      if (q && !values.includes(q)) continue;
+      const card = makeCard(r);
+      if (card) out.push(card);
+    }
+    out.forEach(el => grid.appendChild(el));
+    setStatus(`Loaded ${out.length} item${out.length!==1?'s':''}`);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    showSkeletons();
+    setStatus('Loading…');
+
+    Papa.parse(CSV_URL, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        const rows = (results.data || []).filter(Boolean);
+        window._rows = rows;
+        render(rows);
+        $('#grid').setAttribute('aria-busy', 'false');
+        // Try to notify parent for auto-resizing (parent must opt in to handle it)
+        try{
+          if (window.parent && window.parent !== window) {
+            const ro = new ResizeObserver(()=>{
+              window.parent.postMessage({ type: 'vignettes:height', height: document.body.scrollHeight }, '*');
+            });
+            ro.observe(document.body);
+          }
+        }catch(e){ /* ignore if cross-origin blocked */ }
+      },
+      error: (err) => {
+        setStatus('Failed to load CSV. See console for details.');
+        console.error(err);
+      }
+    });
+
+    $('#q').addEventListener('input', () => render(window._rows || []));
+  });
+  </script>
+</body>
+</html>
