@@ -15,9 +15,9 @@
       --border: #dbe4ec;
       --accent: #215c9c;
       --accent-soft: #e9f2fb;
-      --shadow: 0 10px 30px rgba(20, 30, 50, 0.08);
-      --radius: 18px;
-      --max-width: 1440px;
+      --shadow: 0 8px 24px rgba(20, 30, 50, 0.06);
+      --radius: 15px;
+      --max-width: 1180px;
     }
 
     * { box-sizing: border-box; }
@@ -30,63 +30,68 @@
         radial-gradient(circle at top left, rgba(33, 92, 156, 0.08), transparent 28%),
         radial-gradient(circle at top right, rgba(14, 134, 179, 0.08), transparent 24%),
         var(--bg);
-      line-height: 1.5;
+      line-height: 1.42;
     }
 
     a { color: inherit; }
 
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
     .page {
-      width: min(calc(100% - 2rem), var(--max-width));
+      width: min(calc(100% - 1rem), var(--max-width));
       margin: 0 auto;
-      padding: 1.2rem 0 3rem;
+      padding: .7rem 0 1.7rem;
     }
 
     .toolbar {
       position: sticky;
       top: 0;
       z-index: 20;
-      margin-bottom: 1rem;
-      padding-top: .5rem;
+      margin-bottom: .8rem;
+      padding-top: .2rem;
     }
 
     .toolbar-card {
       display: grid;
-      gap: 1rem;
-      padding: 1rem;
-      background: rgba(255,255,255,0.92);
+      gap: .5rem;
+      padding: .72rem .78rem;
+      background: rgba(255,255,255,0.93);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(219, 228, 236, 0.95);
-      border-radius: 20px;
+      border: 1px solid rgba(219, 228, 236, 0.96);
+      border-radius: 16px;
       box-shadow: var(--shadow);
     }
 
     .controls {
       display: grid;
-      grid-template-columns: 1.7fr minmax(160px, .75fr);
-      gap: .8rem;
+      grid-template-columns: minmax(0, 1fr) 140px;
+      gap: .48rem;
+      align-items: center;
     }
 
     .field {
-      display: grid;
-      gap: .4rem;
       min-width: 0;
-    }
-
-    .field label {
-      font-size: .78rem;
-      font-weight: 600;
-      color: var(--muted);
     }
 
     input[type="search"], select {
       width: 100%;
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: .72rem .85rem;
-      font-size: .94rem;
+      border-radius: 12px;
+      padding: .58rem .72rem;
+      font-size: .85rem;
       color: var(--text);
       background: var(--surface);
-      min-height: 42px;
+      min-height: 36px;
     }
 
     input[type="search"]:focus, select:focus, .btn:focus {
@@ -100,35 +105,35 @@
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: .8rem;
+      gap: .5rem;
     }
 
     .results {
       display: flex;
       flex-wrap: wrap;
-      gap: .6rem;
+      gap: .45rem;
       align-items: center;
       color: var(--muted);
-      font-size: .88rem;
+      font-size: .79rem;
     }
 
     .pill {
       display: inline-flex;
       align-items: center;
-      gap: .4rem;
-      padding: .38rem .72rem;
+      gap: .35rem;
+      padding: .24rem .54rem;
       border: 1px solid var(--border);
       border-radius: 999px;
       background: var(--surface);
       white-space: nowrap;
       color: var(--muted);
-      font-size: .84rem;
+      font-size: .74rem;
     }
 
     .actions {
       display: flex;
       flex-wrap: wrap;
-      gap: .6rem;
+      gap: .42rem;
       align-items: center;
     }
 
@@ -136,15 +141,15 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: .5rem;
-      min-height: 40px;
-      padding: .66rem .92rem;
-      border-radius: 14px;
+      gap: .4rem;
+      min-height: 36px;
+      padding: .54rem .72rem;
+      border-radius: 12px;
       border: 1px solid var(--border);
       background: var(--surface);
       color: var(--text);
       text-decoration: none;
-      font-size: .9rem;
+      font-size: .82rem;
       font-weight: 600;
       cursor: pointer;
     }
@@ -157,8 +162,8 @@
 
     .gallery {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: .9rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: .72rem;
     }
 
     .card {
@@ -173,23 +178,23 @@
     }
 
     .card-media {
-      padding: .85rem .85rem 0;
+      padding: .58rem .58rem 0;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
+      align-items: center;
     }
 
     .cover-link,
     .cover {
       display: block;
       position: relative;
-      width: min(72%, 188px);
+      width: min(65%, 136px);
       aspect-ratio: 210 / 297;
       background: linear-gradient(160deg, rgba(33,92,156,0.08), rgba(14,134,179,0.04));
       overflow: hidden;
       border: 1px solid var(--border);
-      border-radius: 12px;
-      box-shadow: 0 8px 22px rgba(20, 30, 50, 0.08);
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(20, 30, 50, 0.07);
     }
 
     .cover img {
@@ -209,7 +214,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: .8rem;
+      padding: .64rem;
       background:
         linear-gradient(180deg, rgba(255,255,255,0.15), rgba(255,255,255,0.88)),
         radial-gradient(circle at 20% 20%, rgba(33,92,156,0.12), transparent 40%),
@@ -224,11 +229,11 @@
     }
 
     .cover-year {
-      padding: .28rem .48rem;
+      padding: .2rem .42rem;
       border-radius: 999px;
       background: rgba(255,255,255,0.86);
       border: 1px solid rgba(255,255,255,0.94);
-      font-size: .72rem;
+      font-size: .66rem;
       font-weight: 700;
       color: var(--text);
     }
@@ -236,16 +241,16 @@
     .cover-note {
       margin: 0;
       color: var(--muted);
-      font-size: .78rem;
-      line-height: 1.28;
+      font-size: .7rem;
+      line-height: 1.24;
       font-weight: 600;
     }
 
     .card-body {
       display: flex;
       flex-direction: column;
-      gap: .48rem;
-      padding: .78rem .92rem .92rem;
+      gap: .34rem;
+      padding: .6rem .72rem .74rem;
       min-height: 0;
       flex: 1;
     }
@@ -259,9 +264,9 @@
 
     .card-title {
       margin: 0;
-      font-size: .92rem;
-      line-height: 1.22;
-      font-weight: 780;
+      font-size: .82rem;
+      line-height: 1.18;
+      font-weight: 770;
       letter-spacing: -0.01em;
     }
 
@@ -277,15 +282,15 @@
     .card-creators {
       margin: 0;
       color: var(--muted);
-      font-size: .82rem;
-      line-height: 1.3;
+      font-size: .74rem;
+      line-height: 1.26;
     }
 
     .publisher-line, .details {
       margin: 0;
       color: var(--muted);
-      font-size: .82rem;
-      line-height: 1.3;
+      font-size: .74rem;
+      line-height: 1.24;
     }
 
     .publisher-line {
@@ -300,19 +305,19 @@
     .card-meta {
       display: flex;
       flex-wrap: wrap;
-      gap: .45rem;
-      margin-top: .1rem;
+      gap: .34rem;
+      margin-top: .08rem;
     }
 
     .tag {
       display: inline-flex;
       align-items: center;
-      gap: .35rem;
-      padding: .24rem .5rem;
+      gap: .3rem;
+      padding: .18rem .4rem;
       border-radius: 999px;
       background: var(--surface-2);
       color: var(--muted);
-      font-size: .69rem;
+      font-size: .62rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: .02em;
@@ -320,8 +325,8 @@
 
     .reference-link {
       margin-top: auto;
-      padding-top: .28rem;
-      font-size: .84rem;
+      padding-top: .16rem;
+      font-size: .76rem;
       font-weight: 600;
       text-decoration: none;
       color: var(--accent);
@@ -333,45 +338,80 @@
     }
 
     .empty {
-      padding: 2rem;
+      padding: 1.5rem;
       text-align: center;
       color: var(--muted);
       background: rgba(255,255,255,0.88);
       border: 1px dashed var(--border);
-      border-radius: 22px;
+      border-radius: 18px;
       grid-column: 1 / -1;
+      font-size: .88rem;
     }
 
-    @media (max-width: 860px) {
+    @media (min-width: 1120px) {
+      .gallery {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1450px) {
+      .gallery {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
       .controls {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr) 126px;
       }
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 560px) {
       .page {
-        width: min(calc(100% - 1rem), var(--max-width));
-        padding-top: 1rem;
+        width: min(calc(100% - .65rem), var(--max-width));
+        padding-top: .55rem;
       }
+
       .toolbar-card {
-        padding: 1rem;
+        padding: .64rem;
       }
+
       .toolbar-bottom {
         flex-direction: column;
         align-items: stretch;
       }
+
       .actions {
         width: 100%;
       }
+
       .actions .btn {
-        flex: 1 1 auto;
+        flex: 1 1 0;
       }
+
+      .gallery {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .6rem;
+      }
+
+      .cover-link,
+      .cover {
+        width: min(78%, 118px);
+      }
+    }
+
+    @media (max-width: 360px) {
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
       .gallery {
         grid-template-columns: 1fr;
       }
+
       .cover-link,
       .cover {
-        width: min(58vw, 190px);
+        width: min(62vw, 128px);
       }
     }
   </style>
@@ -381,15 +421,15 @@
     <section class="toolbar" aria-label="Gallery controls">
       <div class="toolbar-card">
         <div class="controls">
-          <div class="field">
-            <label for="search">Search</label>
-            <input id="search" type="search" placeholder="Search title, creator, publisher, details…" autocomplete="off">
+          <div class="field search-field">
+            <label class="sr-only" for="search">Search books</label>
+            <input id="search" type="search" placeholder="Search books…" autocomplete="off">
           </div>
-          <div class="field">
-            <label for="sortBy">Sort</label>
-            <select id="sortBy">
-              <option value="year-desc">Newest first</option>
-              <option value="year-asc">Oldest first</option>
+          <div class="field sort-field">
+            <label class="sr-only" for="sortBy">Sort books</label>
+            <select id="sortBy" aria-label="Sort books">
+              <option value="year-desc">Newest</option>
+              <option value="year-asc">Oldest</option>
               <option value="title-asc">Title A–Z</option>
               <option value="publisher-asc">Publisher A–Z</option>
             </select>
@@ -402,7 +442,7 @@
           </div>
           <div class="actions">
             <button class="btn" id="resetBtn" type="button">Reset</button>
-            <button class="btn primary" id="downloadBtn" type="button">Download CSV</button>
+            <button class="btn primary" id="downloadBtn" type="button">CSV</button>
           </div>
         </div>
       </div>
