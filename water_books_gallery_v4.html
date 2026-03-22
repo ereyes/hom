@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HOM - Bibliotheca Aquatica</title>
+  <meta name="description" content="HOM, Bibliotheca Aquatica, survey of books related to HOM, hydrology of media, everardo reyes">
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: #ffffff;
+      --surface-2: #eef3f8;
+      --text: #1d2430;
+      --muted: #5c6978;
+      --border: #dbe4ec;
+      --accent: #215c9c;
+      --accent-soft: #e9f2fb;
+      --shadow: 0 10px 30px rgba(20, 30, 50, 0.08);
+      --radius: 18px;
+      --max-width: 1440px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(33, 92, 156, 0.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(14, 134, 179, 0.08), transparent 24%),
+        var(--bg);
+      line-height: 1.5;
+    }
+
+    a { color: inherit; }
+
+    .page {
+      width: min(calc(100% - 2rem), var(--max-width));
+      margin: 0 auto;
+      padding: 1.2rem 0 3rem;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      margin-bottom: 1rem;
+      padding-top: .5rem;
+    }
+
+    .toolbar-card {
+      display: grid;
+      gap: 1rem;
+      padding: 1rem;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(219, 228, 236, 0.95);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1.7fr minmax(160px, .75fr);
+      gap: .8rem;
+    }
+
+    .field {
+      display: grid;
+      gap: .4rem;
+      min-width: 0;
+    }
+
+    .field label {
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    input[type="search"], select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: .72rem .85rem;
+      font-size: .94rem;
+      color: var(--text);
+      background: var(--surface);
+      min-height: 42px;
+    }
+
+    input[type="search"]:focus, select:focus, .btn:focus {
+      outline: 3px solid rgba(33, 92, 156, 0.16);
+      outline-offset: 1px;
+      border-color: rgba(33, 92, 156, 0.55);
+    }
+
+    .toolbar-bottom {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: .8rem;
+    }
+
+    .results {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+      align-items: center;
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .38rem .72rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      white-space: nowrap;
+      color: var(--muted);
+      font-size: .84rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      min-height: 40px;
+      padding: .66rem .92rem;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: .9rem;
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .card-media {
+      padding: .85rem .85rem 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .cover-link,
+    .cover {
+      display: block;
+      position: relative;
+      width: min(72%, 188px);
+      aspect-ratio: 210 / 297;
+      background: linear-gradient(160deg, rgba(33,92,156,0.08), rgba(14,134,179,0.04));
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 8px 22px rgba(20, 30, 50, 0.08);
+    }
+
+    .cover img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      display: block;
+      background: #fff;
+    }
+
+    .cover-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: .8rem;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.15), rgba(255,255,255,0.88)),
+        radial-gradient(circle at 20% 20%, rgba(33,92,156,0.12), transparent 40%),
+        radial-gradient(circle at 80% 15%, rgba(14,134,179,0.12), transparent 30%),
+        radial-gradient(circle at 70% 70%, rgba(82,145,193,0.09), transparent 35%);
+    }
+
+    .cover-top {
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+    }
+
+    .cover-year {
+      padding: .28rem .48rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.86);
+      border: 1px solid rgba(255,255,255,0.94);
+      font-size: .72rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .cover-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.28;
+      font-weight: 600;
+    }
+
+    .card-body {
+      display: flex;
+      flex-direction: column;
+      gap: .48rem;
+      padding: .78rem .92rem .92rem;
+      min-height: 0;
+      flex: 1;
+    }
+
+    .divider {
+      width: 100%;
+      border: 0;
+      border-top: 1px solid var(--border);
+      margin: 0;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: .92rem;
+      line-height: 1.22;
+      font-weight: 780;
+      letter-spacing: -0.01em;
+    }
+
+    .card-title a {
+      text-decoration: none;
+    }
+
+    .card-title a:hover,
+    .card-title a:focus {
+      text-decoration: underline;
+    }
+
+    .card-creators {
+      margin: 0;
+      color: var(--muted);
+      font-size: .82rem;
+      line-height: 1.3;
+    }
+
+    .publisher-line, .details {
+      margin: 0;
+      color: var(--muted);
+      font-size: .82rem;
+      line-height: 1.3;
+    }
+
+    .publisher-line {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .details {
+      font-style: italic;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .45rem;
+      margin-top: .1rem;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .24rem .5rem;
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: .69rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .02em;
+    }
+
+    .reference-link {
+      margin-top: auto;
+      padding-top: .28rem;
+      font-size: .84rem;
+      font-weight: 600;
+      text-decoration: none;
+      color: var(--accent);
+    }
+
+    .reference-link:hover,
+    .reference-link:focus {
+      text-decoration: underline;
+    }
+
+    .empty {
+      padding: 2rem;
+      text-align: center;
+      color: var(--muted);
+      background: rgba(255,255,255,0.88);
+      border: 1px dashed var(--border);
+      border-radius: 22px;
+      grid-column: 1 / -1;
+    }
+
+    @media (max-width: 860px) {
+      .controls {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: min(calc(100% - 1rem), var(--max-width));
+        padding-top: 1rem;
+      }
+      .toolbar-card {
+        padding: 1rem;
+      }
+      .toolbar-bottom {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .actions {
+        width: 100%;
+      }
+      .actions .btn {
+        flex: 1 1 auto;
+      }
+      .gallery {
+        grid-template-columns: 1fr;
+      }
+      .cover-link,
+      .cover {
+        width: min(58vw, 190px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="toolbar" aria-label="Gallery controls">
+      <div class="toolbar-card">
+        <div class="controls">
+          <div class="field">
+            <label for="search">Search</label>
+            <input id="search" type="search" placeholder="Search title, creator, publisher, details…" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="sortBy">Sort</label>
+            <select id="sortBy">
+              <option value="year-desc">Newest first</option>
+              <option value="year-asc">Oldest first</option>
+              <option value="title-asc">Title A–Z</option>
+              <option value="publisher-asc">Publisher A–Z</option>
+            </select>
+          </div>
+        </div>
+        <div class="toolbar-bottom">
+          <div class="results">
+            <span id="resultsText">Loading…</span>
+            <span class="pill" id="sourcePill">Loading data…</span>
+          </div>
+          <div class="actions">
+            <button class="btn" id="resetBtn" type="button">Reset</button>
+            <button class="btn primary" id="downloadBtn" type="button">Download CSV</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="gallery" id="gallery" aria-live="polite"></section>
+  </main>
+
+  <script>
+    const DEFAULT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSmI3NcIoBkI4yJMqyAqsHAt0cOiyRl79G-0c0kXPlkV1qLLX4LHOe00K5PjlycDOpuy37MyBwldCOG/pub?gid=1495159269&single=true&output=csv";
+    const FALLBACK_ROWS = [
+  {
+    "title": "100 Words for Water: A Projective Ecosocial Vocabulary",
+    "creators": "Eva Franch i Gilabert; Mireia Luzárraga; Alejandro Muiño (eds.)",
+    "publisher_or_journal": "Lars Müller Publishers",
+    "type": "edited book",
+    "year": "2025",
+    "details": "",
+    "url": "https://www.lars-mueller-publishers.com/100-words-water",
+    "access": "website",
+    "language": "English",
+    "cover_url": "https://www.lars-mueller-publishers.com/sites/default/files/styles/medium_uncropped/public/2025-05/100-Words-for-Water_without-Logo_3.png?itok=Jgszfxfm"
+  },
+  {
+    "title": "Arquitectura y Agua",
+    "creators": "",
+    "publisher_or_journal": "Revista Proyecto, Progreso, Arquitectura",
+    "type": "journal issue",
+    "year": "2025",
+    "details": "Núm. 33",
+    "url": "https://doi.org/10.12795/ppa.2025.i33",
+    "access": "journal website / DOI",
+    "language": "Spanish",
+    "cover_url": ""
+  },
+  {
+    "title": "Walking as Embodied Worldmaking: Bodies, Borders, Knowledgescapes",
+    "creators": "Lea Maria Spahn (ed.)",
+    "publisher_or_journal": "Set Margins",
+    "type": "edited book",
+    "year": "2025",
+    "details": "",
+    "url": "https://www.setmargins.press/books/walking-as-embodied-worldmaking/",
+    "access": "website",
+    "language": "English",
+    "cover_url": "https://bookshopbyuro.com/cdn/shop/files/9789083499338_530x%402x.png?v=1770956289"
+  },
+  {
+    "title": "Ocean Memory: Unimagined Perspectives",
+    "creators": "Jody W. Deming",
+    "publisher_or_journal": "Leonardo",
+    "type": "journal article",
+    "year": "2025",
+    "details": "58(1): 105–110",
+    "url": "https://doi.org/10.1162/leon_a_02644",
+    "access": "open access",
+    "language": "English",
+    "cover_url": ""
+  },
+  {
+    "title": "Into/Across the Sea",
+    "creators": "Bill Psarras (guest ed.)",
+    "publisher_or_journal": "Technoetic Arts",
+    "type": "special journal issue",
+    "year": "2025",
+    "details": "22.2",
+    "url": "https://ta.pubpub.org/pub/22-2-sea/release/6",
+    "access": "website",
+    "language": "English",
+    "cover_url": "https://resize-v3.pubpub.org/eyJidWNrZXQiOiJhc3NldHMucHVicHViLm9yZyIsImtleSI6Ijc5cmoxeWFkL0NvdmVyLWltYWdlX25vdFNxdWFyZSBjb3B5LTUxNzM2ODQ1ODgyNjA0LmpwZyIsImVkaXRzIjp7InJlc2l6ZSI6eyJ3aWR0aCI6ODAwLCJmaXQiOiJpbnNpZGUiLCJ3aXRob3V0RW5sYXJnZW1lbnQiOnRydWV9fX0%3D"
+  },
+  {
+    "title": "Réenchanter l'eau: Plaidoyer anthropologique",
+    "creators": "Claudine Brelet",
+    "publisher_or_journal": "Actes Sud",
+    "type": "book",
+    "year": "2024",
+    "details": "Paris",
+    "url": "https://actes-sud.fr/catalogue/reenchanter-leau-019015",
+    "access": "publisher page",
+    "language": "French",
+    "cover_url": "https://static.fnac-static.com/multimedia/PE/Images/FR/NR/bc/a5/ec/15508924/1535-1/tsp20251128075121/Reenchanter-l-eau.jpg"
+  },
+  {
+    "title": "The Hydrocene: Eco-Aesthetics in the Age of Water",
+    "creators": "Bronwyn Bailey-Charteris",
+    "publisher_or_journal": "Routledge",
+    "type": "book",
+    "year": "2024",
+    "details": "",
+    "url": "https://doi.org/10.4324/9781003397304",
+    "access": "open access / open PDF",
+    "language": "English",
+    "cover_url": "https://images.tandf.co.uk/common/jackets/crclarge/978100339/9781003397304.jpg"
+  },
+  {
+    "title": "Hot Springs: Photos and Stories of How the World Soaks, Swims, and Slows Down",
+    "creators": "Greta Rybus",
+    "publisher_or_journal": "Ten Speed Press",
+    "type": "book",
+    "year": "2024",
+    "details": "",
+    "url": "https://www.penguinrandomhouse.com/books/665501/hot-springs-by-greta-rybus/",
+    "access": "publisher page",
+    "language": "English",
+    "cover_url": "https://images1.penguinrandomhouse.com/cover/9781984859372"
+  },
+  {
+    "title": "A Poetic History of the Oceans: Literature and Maritime Modernity",
+    "creators": "Søren Frank",
+    "publisher_or_journal": "Brill",
+    "type": "book",
+    "year": "2022",
+    "details": "",
+    "url": "https://doi.org/10.1163/9789004426702",
+    "access": "open access / open PDF",
+    "language": "English",
+    "cover_url": "https://im2.book.com.tw/image/getImage?h=348&i=https%3A%2F%2Fwww.books.com.tw%2Fimg%2FF01%2F897%2F41%2FF018974167.jpg&v=62e7d613k&w=348"
+  },
+  {
+    "title": "Plastic Ocean: Art and Science Responses to Marine Pollution",
+    "creators": "Ingeborg Reichle (ed.)",
+    "publisher_or_journal": "De Gruyter",
+    "type": "edited book",
+    "year": "2021",
+    "details": "Edition Angewandte",
+    "url": "https://doi.org/10.1515/9783110744774",
+    "access": "publisher page / e-book DOI",
+    "language": "English",
+    "cover_url": "https://www.degruyterbrill.com/document/cover/isbn/9783110744774/product_pages"
+  },
+  {
+    "title": "Eau : Un regard et des mots",
+    "creators": "Stéphanie Reiss",
+    "publisher_or_journal": "La Martinière",
+    "type": "book",
+    "year": "2021",
+    "details": "",
+    "url": "https://www.editionsdelamartiniere.fr/livres/eau/",
+    "access": "publisher page",
+    "language": "French",
+    "cover_url": "https://ref.lamartinieregroupe.com/media/9782732474564/grande/128368_couverture_Hres_0.jpg"
+  },
+  {
+    "title": "The Power of Urban Water: Studies in Premodern Urbanism",
+    "creators": "Nicola Chiarenza; Annette Haug; Ulrich Müller (eds.)",
+    "publisher_or_journal": "De Gruyter",
+    "type": "edited book",
+    "year": "2020",
+    "details": "",
+    "url": "https://doi.org/10.1515/9783110677065",
+    "access": "open access",
+    "language": "English",
+    "cover_url": "https://www.degruyterbrill.com/document/cover/isbn/9783110677065/product_pages"
+  },
+  {
+    "title": "Aqua depicta: Representation of water in art and science",
+    "creators": "M. Macagno",
+    "publisher_or_journal": "La Houille Blanche",
+    "type": "journal article",
+    "year": "1992",
+    "details": "78(5): 371–379",
+    "url": "https://doi.org/10.1051/lhb/1992034",
+    "access": "DOI",
+    "language": "English",
+    "cover_url": ""
+  },
+  {
+    "title": "Il futuro della natura. Soluzioni per un pianeta che cambia",
+    "creators": "Giulio Boccaletti",
+    "publisher_or_journal": "Mondadori",
+    "type": "book",
+    "year": "2025",
+    "details": "",
+    "url": "https://www.mondadori.it/libri/il-futuro-della-natura-giulio-boccaletti/",
+    "access": "publisher page",
+    "language": "Italian",
+    "cover_url": ""
+  },
+  {
+    "title": "Water of the Sky: A Dictionary of 2,000 Japanese Rain Words",
+    "creators": "Miya Ando",
+    "publisher_or_journal": "The MIT Press",
+    "type": "book",
+    "year": "2025",
+    "details": "",
+    "url": "https://mitpress.mit.edu/9780262049863/water-of-the-sky/",
+    "access": "publisher page",
+    "language": "English / Japanese",
+    "cover_url": ""
+  },
+  {
+    "title": "The Word for World Is Water: World-Building and Creative Resistance Through Liquid Alliances",
+    "creators": "Katya Garcia-Anton; Margarida Mendes (eds.)",
+    "publisher_or_journal": "Spector Books",
+    "type": "edited book",
+    "year": "2026",
+    "details": "",
+    "url": "https://www.spectorbooks.com/book/the-word-for-world-is-water",
+    "access": "publisher page",
+    "language": "Spanish / English",
+    "cover_url": ""
+  },
+  {
+    "title": "Cooking Sections: Waves Lost to Sea",
+    "creators": "Fundación Botín (ed.)",
+    "publisher_or_journal": "Spector Books",
+    "type": "book",
+    "year": "2026",
+    "details": "",
+    "url": "https://www.spectorbooks.com/book/cooking-sections",
+    "access": "publisher page",
+    "language": "Spanish / English",
+    "cover_url": ""
+  }
+];
+
+    const els = {
+      search: document.getElementById('search'),
+      sortBy: document.getElementById('sortBy'),
+      resetBtn: document.getElementById('resetBtn'),
+      downloadBtn: document.getElementById('downloadBtn'),
+      gallery: document.getElementById('gallery'),
+      resultsText: document.getElementById('resultsText'),
+      sourcePill: document.getElementById('sourcePill')
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const CSV_URL = params.get('csv') || DEFAULT_CSV_URL;
+
+    let rows = [];
+
+    function normalizeKey(key) {
+      return String(key || '').trim().toLowerCase();
+    }
+
+    function normalizeRow(row) {
+      const normalized = Object.fromEntries(Object.entries(row).map(([key, value]) => [normalizeKey(key), String(value ?? '').trim()]));
+      return {
+        title: normalized.title || '',
+        creators: normalized.creators || '',
+        publisher_or_journal: normalized.publisher_or_journal || normalized.publisher || '',
+        type: normalized.type || '',
+        year: normalized.year || '',
+        details: normalized.details || '',
+        url: normalized.url || '',
+        access: normalized.access || '',
+        language: normalized.language || '',
+        cover_url: normalized.cover_url || ''
+      };
+    }
+
+    function normalizeTitle(title) {
+      return String(title || '')
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, ' ')
+        .trim();
+    }
+
+    function normalizeUrl(url) {
+      return String(url || '')
+        .trim()
+        .toLowerCase()
+        .replace(/^https?:\/\//, '')
+        .replace(/\/$/, '');
+    }
+
+    function rowKey(row) {
+      return normalizeUrl(row.url) || normalizeTitle(row.title);
+    }
+
+    function mergeRow(base, override) {
+      return {
+        title: override.title || base.title || '',
+        creators: override.creators || base.creators || '',
+        publisher_or_journal: override.publisher_or_journal || base.publisher_or_journal || '',
+        type: override.type || base.type || '',
+        year: override.year || base.year || '',
+        details: override.details || base.details || '',
+        url: override.url || base.url || '',
+        access: override.access || base.access || '',
+        language: override.language || base.language || '',
+        cover_url: override.cover_url || base.cover_url || ''
+      };
+    }
+
+    function combineRows(liveRows, fallbackRows) {
+      const map = new Map();
+
+      fallbackRows.map(normalizeRow).forEach(row => {
+        map.set(rowKey(row), row);
+      });
+
+      liveRows.map(normalizeRow).forEach(row => {
+        const key = rowKey(row);
+        const existing = map.get(key) || {};
+        map.set(key, mergeRow(existing, row));
+      });
+
+      return [...map.values()];
+    }
+
+    function csvToRows(text) {
+      const out = [];
+      let row = [];
+      let value = '';
+      let i = 0;
+      let inQuotes = false;
+
+      while (i < text.length) {
+        const char = text[i];
+        const next = text[i + 1];
+
+        if (inQuotes) {
+          if (char === '"' && next === '"') {
+            value += '"';
+            i += 2;
+            continue;
+          }
+          if (char === '"') {
+            inQuotes = false;
+            i += 1;
+            continue;
+          }
+          value += char;
+          i += 1;
+          continue;
+        }
+
+        if (char === '"') {
+          inQuotes = true;
+          i += 1;
+          continue;
+        }
+        if (char === ',') {
+          row.push(value);
+          value = '';
+          i += 1;
+          continue;
+        }
+        if (char === '\n') {
+          row.push(value);
+          out.push(row);
+          row = [];
+          value = '';
+          i += 1;
+          continue;
+        }
+        if (char === '\r') {
+          i += 1;
+          continue;
+        }
+
+        value += char;
+        i += 1;
+      }
+
+      if (value.length > 0 || row.length > 0) {
+        row.push(value);
+        out.push(row);
+      }
+
+      if (!out.length) return [];
+      const headers = out[0].map(normalizeKey);
+      return out.slice(1)
+        .filter(record => record.some(cell => String(cell || '').trim() !== ''))
+        .map(record => Object.fromEntries(headers.map((header, idx) => [header, record[idx] ?? ''])));
+    }
+
+    function bookSearchText(book) {
+      return [book.title, book.creators, book.publisher_or_journal, book.type, book.year, book.details, book.access, book.language]
+        .join(' ')
+        .toLowerCase();
+    }
+
+    function sortRows(data, mode) {
+      const copy = [...data];
+      copy.sort((a, b) => {
+        if (mode === 'year-asc' || mode === 'year-desc') {
+          const ay = Number.parseInt(a.year, 10);
+          const by = Number.parseInt(b.year, 10);
+          const safeAY = Number.isFinite(ay) ? ay : (mode === 'year-asc' ? Number.MAX_SAFE_INTEGER : Number.MIN_SAFE_INTEGER);
+          const safeBY = Number.isFinite(by) ? by : (mode === 'year-asc' ? Number.MAX_SAFE_INTEGER : Number.MIN_SAFE_INTEGER);
+          if (safeAY !== safeBY) return mode === 'year-asc' ? safeAY - safeBY : safeBY - safeAY;
+          return a.title.localeCompare(b.title, undefined, { sensitivity: 'base' });
+        }
+        if (mode === 'publisher-asc') {
+          return (a.publisher_or_journal || '').localeCompare((b.publisher_or_journal || ''), undefined, { sensitivity: 'base' })
+            || a.title.localeCompare(b.title, undefined, { sensitivity: 'base' });
+        }
+        return a.title.localeCompare(b.title, undefined, { sensitivity: 'base' });
+      });
+      return copy;
+    }
+
+    function createPlaceholder(book) {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'cover-placeholder';
+
+      const top = document.createElement('div');
+      top.className = 'cover-top';
+      if (book.year) {
+        const year = document.createElement('span');
+        year.className = 'cover-year';
+        year.textContent = book.year;
+        top.appendChild(year);
+      }
+      placeholder.appendChild(top);
+
+      const note = document.createElement('p');
+      note.className = 'cover-note';
+      note.textContent = 'Cover coming soon';
+      placeholder.appendChild(note);
+
+      return placeholder;
+    }
+
+    function createCover(book) {
+      const shell = document.createElement('div');
+      shell.className = 'card-media';
+
+      const tagName = book.url ? 'a' : 'div';
+      const cover = document.createElement(tagName);
+      cover.className = book.url ? 'cover-link' : 'cover';
+      if (book.url) {
+        cover.href = book.url;
+        cover.target = '_blank';
+        cover.rel = 'noopener noreferrer';
+        cover.setAttribute('aria-label', `Open reference for ${book.title || 'this item'}`);
+      }
+
+      if (book.cover_url) {
+        const img = document.createElement('img');
+        img.src = book.cover_url;
+        img.alt = book.title ? `Cover of ${book.title}` : 'Book cover';
+        img.loading = 'lazy';
+        img.referrerPolicy = 'no-referrer';
+        img.addEventListener('error', () => {
+          img.remove();
+          cover.appendChild(createPlaceholder(book));
+        }, { once: true });
+        cover.appendChild(img);
+      } else {
+        cover.appendChild(createPlaceholder(book));
+      }
+
+      shell.appendChild(cover);
+      return shell;
+    }
+
+    function renderCard(book) {
+      const card = document.createElement('article');
+      card.className = 'card';
+
+      card.appendChild(createCover(book));
+
+      const body = document.createElement('div');
+      body.className = 'card-body';
+
+      const divider = document.createElement('hr');
+      divider.className = 'divider';
+      body.appendChild(divider);
+
+      const title = document.createElement('h3');
+      title.className = 'card-title';
+      if (book.url) {
+        const link = document.createElement('a');
+        link.href = book.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = book.title || 'Untitled';
+        title.appendChild(link);
+      } else {
+        title.textContent = book.title || 'Untitled';
+      }
+      body.appendChild(title);
+
+      if (book.creators) {
+        const creators = document.createElement('p');
+        creators.className = 'card-creators';
+        creators.textContent = book.creators;
+        body.appendChild(creators);
+      }
+
+      const publisherParts = [book.publisher_or_journal, book.year].filter(Boolean);
+      if (publisherParts.length) {
+        const publisherLine = document.createElement('p');
+        publisherLine.className = 'publisher-line';
+        publisherLine.textContent = publisherParts.join(' · ');
+        body.appendChild(publisherLine);
+      }
+
+      if (book.details) {
+        const details = document.createElement('p');
+        details.className = 'details';
+        details.textContent = book.details;
+        body.appendChild(details);
+      }
+
+      const meta = document.createElement('div');
+      meta.className = 'card-meta';
+      if (book.type) {
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = book.type;
+        meta.appendChild(tag);
+      }
+      if (meta.children.length) body.appendChild(meta);
+
+      if (book.url) {
+        const ref = document.createElement('a');
+        ref.className = 'reference-link';
+        ref.href = book.url;
+        ref.target = '_blank';
+        ref.rel = 'noopener noreferrer';
+        ref.textContent = 'Open reference';
+        body.appendChild(ref);
+      }
+
+      card.appendChild(body);
+      return card;
+    }
+
+    function getVisibleRows() {
+      const query = els.search.value.trim().toLowerCase();
+      const sortBy = els.sortBy.value;
+
+      const filtered = rows.filter(book => {
+        if (query && !bookSearchText(book).includes(query)) return false;
+        return true;
+      });
+
+      return sortRows(filtered, sortBy);
+    }
+
+    function render() {
+      const visible = getVisibleRows();
+      els.gallery.innerHTML = '';
+
+      if (!visible.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.innerHTML = '<strong>No matching entries.</strong><br>Try broadening the search terms.';
+        els.gallery.appendChild(empty);
+      } else {
+        visible.forEach(book => els.gallery.appendChild(renderCard(book)));
+      }
+
+      els.resultsText.textContent = `${visible.length} shown · ${rows.length} total`;
+    }
+
+    function csvEscape(value) {
+      const text = String(value ?? '');
+      if (/["\n,]/.test(text)) {
+        return `"${text.replace(/"/g, '""')}"`;
+      }
+      return text;
+    }
+
+    function downloadCsv() {
+      const headers = ['title','creators','publisher_or_journal','type','year','details','url','access','language','cover_url'];
+      const lines = [
+        headers.join(','),
+        ...rows.map(row => headers.map(header => csvEscape(row[header] || '')).join(','))
+      ];
+      const blob = new Blob(["\ufeff" + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'water_books_survey.csv';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    async function loadRows() {
+      try {
+        const response = await fetch(CSV_URL, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const text = await response.text();
+        const liveRows = csvToRows(text);
+        rows = combineRows(liveRows, FALLBACK_ROWS);
+        els.sourcePill.textContent = 'Live sheet + embedded snapshot';
+      } catch (error) {
+        rows = FALLBACK_ROWS.map(normalizeRow);
+        els.sourcePill.textContent = 'Embedded snapshot';
+      }
+
+      render();
+    }
+
+    els.search.addEventListener('input', render);
+    els.sortBy.addEventListener('change', render);
+    els.resetBtn.addEventListener('click', () => {
+      els.search.value = '';
+      els.sortBy.value = 'year-desc';
+      render();
+    });
+    els.downloadBtn.addEventListener('click', downloadCsv);
+
+    loadRows();
+  </script>
+</body>
+</html>
