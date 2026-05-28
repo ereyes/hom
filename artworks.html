@@ -38,6 +38,8 @@
       color:var(--fg);
       background:var(--bg);
     }
+    body.preview-open{ overflow:hidden; }
+
     header{ max-width:1100px; margin:0 auto 8px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .sr-only{ position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
     #q{
@@ -52,19 +54,140 @@
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     }
 
-    a.card{
+    .card-shell{ position:relative; }
+
+    .card{
       display:grid; gap:8px; text-decoration:none; color:inherit;
       background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:12px;
       box-shadow: var(--shadow); transition: transform .1s ease, border-color .2s ease;
+      min-height:100%;
     }
-    a.card:hover, a.card:focus-visible{ transform: translateY(-1px); border-color: color-mix(in oklab, var(--accent) 30%, var(--border)); outline:none; }
+    a.card:hover, a.card:focus-visible{
+      transform: translateY(-1px);
+      border-color: color-mix(in oklab, var(--accent) 30%, var(--border));
+      outline:none;
+    }
 
     .title{ font-weight:670; margin:0; line-height:1.25; font-size:14px; }
+    .card-shell.has-preview .title{ padding-right:76px; }
     .meta{ display:flex; align-items:center; flex-wrap:wrap; gap:8px; font-size:12px; color:rgba(127,131,146,.95); }
     .host{ opacity:.95; }
     .authors{ opacity:.9; }
     .badges{ display:flex; flex-wrap:wrap; gap:6px; }
     .badge{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--border); font-size:11px; opacity:.95; }
+
+    .preview-btn{
+      position:absolute;
+      top:9px;
+      right:9px;
+      z-index:2;
+      cursor:pointer;
+      border:1px solid color-mix(in oklab, var(--accent) 26%, var(--border));
+      background:color-mix(in oklab, var(--accent) 9%, var(--card-bg));
+      color:var(--fg);
+      border-radius:999px;
+      padding:4px 9px;
+      font:600 11px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial;
+      box-shadow:0 1px 2px rgba(0,0,0,.06);
+    }
+    .preview-btn:hover, .preview-btn:focus-visible{
+      border-color:var(--accent);
+      outline:none;
+    }
+
+    .preview-modal[hidden]{ display:none !important; }
+    .preview-modal{
+      position:fixed;
+      inset:0;
+      z-index:1000;
+      display:grid;
+      place-items:center;
+      padding:16px;
+    }
+    .preview-backdrop{
+      position:absolute;
+      inset:0;
+      background:rgba(0,0,0,.64);
+      backdrop-filter:blur(2px);
+    }
+    .preview-dialog{
+      position:relative;
+      z-index:1;
+      width:min(1040px, calc(100vw - 32px));
+      max-height:calc(100vh - 32px);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      color:var(--fg);
+      background:var(--card-bg);
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow:0 18px 70px rgba(0,0,0,.36);
+    }
+    .preview-header{
+      flex:0 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 14px;
+      border-bottom:1px solid var(--border);
+    }
+    .preview-heading{
+      margin:0;
+      font-size:14px;
+      line-height:1.3;
+      font-weight:700;
+    }
+    .preview-close{
+      flex:0 0 auto;
+      width:32px;
+      height:32px;
+      cursor:pointer;
+      border:1px solid var(--border);
+      border-radius:999px;
+      background:var(--card-bg);
+      color:var(--fg);
+      font-size:20px;
+      line-height:1;
+    }
+    .preview-close:hover, .preview-close:focus-visible{
+      border-color:var(--accent);
+      outline:none;
+    }
+    .preview-scroll{
+      flex:1 1 auto;
+      min-height:0;
+      overflow-y:auto;
+      padding:14px;
+      background:var(--muted);
+      overscroll-behavior:contain;
+    }
+    .preview-hint{
+      margin:0 0 10px;
+      font-size:12px;
+      opacity:.72;
+      text-align:center;
+    }
+    .preview-image{
+      display:block;
+      width:min(100%, 900px);
+      height:auto;
+      margin:0 auto;
+      border-radius:10px;
+      background:var(--card-bg);
+      box-shadow:0 2px 14px rgba(0,0,0,.14);
+    }
+    .preview-error{
+      margin:0 auto 10px;
+      max-width:760px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      background:var(--card-bg);
+      font-size:12px;
+      text-align:center;
+    }
 
     .skeleton{
       background: linear-gradient(90deg, transparent, rgba(0,0,0,.06), transparent);
@@ -87,6 +210,21 @@
 
   <main class="grid" id="grid" aria-busy="true"></main>
 
+  <div class="preview-modal" id="previewModal" hidden>
+    <div class="preview-backdrop" data-close-preview></div>
+    <section class="preview-dialog" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+      <div class="preview-header">
+        <h2 class="preview-heading" id="previewTitle">Preview</h2>
+        <button class="preview-close" type="button" aria-label="Close preview" data-close-preview>&times;</button>
+      </div>
+      <div class="preview-scroll" id="previewScroll">
+        <p class="preview-hint">Scroll inside this preview to see the full website screenshot.</p>
+        <div class="preview-error" id="previewError" hidden>Couldn’t load this image. Check that the image URL is public and points directly to an image.</div>
+        <img class="preview-image" id="previewImage" alt="" />
+      </div>
+    </section>
+  </div>
+
   <script>
   // ---- Configuration ---------------------------------------------------------
   // You can override the CSV via query string: ?csv=<encoded URL>
@@ -105,6 +243,7 @@
     title: "work_title",
     authors: "authors_names",
     url: "url",
+    image: "image",
     type: "type",
     year: "year",
     keyword: "keyword"
@@ -127,15 +266,73 @@
     return (s||"").split(/[;,|]/).map(x => x.trim()).filter(Boolean);
   }
 
+  function normaliseImageUrl(src){
+    const value = (src || "").trim();
+    if (!value) return "";
+
+    // Helpful for public Google Drive links pasted into the image column.
+    try {
+      const url = new URL(value);
+      if (url.hostname.includes("drive.google.com")) {
+        const fileMatch = url.pathname.match(/\/file\/d\/([^/]+)/);
+        const id = fileMatch?.[1] || url.searchParams.get("id");
+        if (id) return `https://drive.google.com/uc?export=view&id=${encodeURIComponent(id)}`;
+      }
+    } catch(e) { /* leave non-URL values untouched */ }
+
+    return value;
+  }
+
+  let lastFocusedPreviewTrigger = null;
+
+  function openPreview(src, title){
+    const imageUrl = normaliseImageUrl(src);
+    if (!imageUrl) return;
+
+    const modal = $('#previewModal');
+    const img = $('#previewImage');
+    const error = $('#previewError');
+    const scroll = $('#previewScroll');
+
+    lastFocusedPreviewTrigger = document.activeElement;
+    $('#previewTitle').textContent = title || 'Preview';
+    img.alt = title ? `Preview screenshot for ${title}` : 'Preview screenshot';
+    img.removeAttribute('src');
+    error.hidden = true;
+    scroll.scrollTop = 0;
+
+    modal.hidden = false;
+    document.body.classList.add('preview-open');
+    img.src = imageUrl;
+    $('.preview-close', modal).focus();
+  }
+
+  function closePreview(){
+    const modal = $('#previewModal');
+    if (!modal || modal.hidden) return;
+
+    $('#previewImage').removeAttribute('src');
+    modal.hidden = true;
+    document.body.classList.remove('preview-open');
+
+    if (lastFocusedPreviewTrigger && typeof lastFocusedPreviewTrigger.focus === 'function') {
+      lastFocusedPreviewTrigger.focus();
+    }
+  }
+
   function makeCard(row){
     const link = get(row, MAP.url);
     if (!link) return null;
 
     const title   = get(row, MAP.title)   || hostname(link);
     const authors = get(row, MAP.authors);
+    const image   = get(row, MAP.image);
     const typ     = get(row, MAP.type);
     const year    = get(row, MAP.year);
     const kws     = splitKeywords(get(row, MAP.keyword));
+
+    const shell = document.createElement('article');
+    shell.className = image ? 'card-shell has-preview' : 'card-shell';
 
     const card = document.createElement('a');
     card.className = 'card'; card.href = link; card.target = '_blank'; card.rel = 'noopener noreferrer';
@@ -155,7 +352,20 @@
     for (const k of kws){ const b = document.createElement('span'); b.className='badge'; b.textContent = k; badges.appendChild(b); }
 
     card.append(h, meta, badges);
-    return card;
+    shell.appendChild(card);
+
+    if (image) {
+      const preview = document.createElement('button');
+      preview.className = 'preview-btn';
+      preview.type = 'button';
+      preview.textContent = 'Preview';
+      preview.setAttribute('aria-haspopup', 'dialog');
+      preview.setAttribute('aria-label', `Preview image for ${title}`);
+      preview.addEventListener('click', () => openPreview(image, title));
+      shell.appendChild(preview);
+    }
+
+    return shell;
   }
 
   function showSkeletons(n=6){
@@ -177,7 +387,7 @@
       const url = get(r, MAP.url); if (!url) continue;
       const values = [
         get(r, MAP.title), get(r, MAP.authors), get(r, MAP.type),
-        get(r, MAP.year), get(r, MAP.keyword), url
+        get(r, MAP.year), get(r, MAP.keyword), get(r, MAP.image), url
       ].join(' ').toLowerCase();
       if (q && !values.includes(q)) continue;
       const card = makeCard(r);
@@ -190,6 +400,15 @@
   document.addEventListener('DOMContentLoaded', () => {
     showSkeletons();
     setStatus('Loading…');
+
+    $('#previewImage').addEventListener('load', () => { $('#previewError').hidden = true; });
+    $('#previewImage').addEventListener('error', () => { $('#previewError').hidden = false; });
+    document.addEventListener('click', (event) => {
+      if (event.target.closest('[data-close-preview]')) closePreview();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closePreview();
+    });
 
     Papa.parse(CSV_URL, {
       download: true,
