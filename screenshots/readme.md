@@ -12,6 +12,10 @@ The aim of this folder is to keep a visual archive of the project’s evolution.
 
 Screenshots are used here as documentation material. When reused in external publications or presentations, please verify authorship, copyright, and citation requirements for each image or interface represented.
 
+## Tools 
+
+[hom-screenshot-renamer](https://ereyes.github.io/hom/screenshots/hom-screenshot-renamer.html) allows to rename and download renamed file to facilitate the archival process.
+
 ## Project
 
 HOM — Hydrologie des Médias
