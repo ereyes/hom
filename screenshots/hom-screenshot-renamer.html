@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HOM Screenshot Filename Renamer</title>
+  <style>
+    :root {
+      --bg: #f5f3ef;
+      --panel: #ffffff;
+      --text: #111111;
+      --muted: #5d5d5d;
+      --line: #111111;
+      --soft-line: #c9c4bb;
+      --focus: #000000;
+      --button-bg: #111111;
+      --button-text: #ffffff;
+      --button-muted-bg: #ffffff;
+      --button-muted-text: #111111;
+      --danger: #8a1f11;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      line-height: 1.45;
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(980px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--line);
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      font-weight: 700;
+    }
+
+    .intro {
+      margin: 0;
+      max-width: 720px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 760px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 2px solid var(--line);
+      padding: 18px;
+    }
+
+    .panel + .panel {
+      margin-top: 24px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    .dropzone {
+      display: grid;
+      place-items: center;
+      min-height: 190px;
+      padding: 24px;
+      border: 2px dashed var(--line);
+      background: #fbfaf7;
+      text-align: center;
+      cursor: pointer;
+      transition: background 120ms linear;
+    }
+
+    .dropzone.is-dragging {
+      background: #e9e5dd;
+    }
+
+    .dropzone strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    .dropzone span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    label,
+    .label {
+      display: block;
+      margin: 0 0 7px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      border: 2px solid var(--line);
+      background: #ffffff;
+      color: var(--text);
+      padding: 12px;
+      font: inherit;
+      outline: none;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    button:focus-visible,
+    .dropzone:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .field {
+      margin-top: 16px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    button {
+      appearance: none;
+      border: 2px solid var(--line);
+      background: var(--button-bg);
+      color: var(--button-text);
+      padding: 11px 14px;
+      font: inherit;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    button.secondary {
+      background: var(--button-muted-bg);
+      color: var(--button-muted-text);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+
+    .hint {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status {
+      min-height: 22px;
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .status.error {
+      color: var(--danger);
+    }
+
+    .preview {
+      display: none;
+      margin-top: 16px;
+      border: 2px solid var(--line);
+      background: #ffffff;
+      padding: 10px;
+    }
+
+    .preview img {
+      display: block;
+      max-width: 100%;
+      max-height: 320px;
+      object-fit: contain;
+      border: 1px solid var(--soft-line);
+    }
+
+    .meta {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .rules {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .rules li + li {
+      margin-top: 6px;
+    }
+
+    code {
+      background: #efebe2;
+      padding: 1px 4px;
+    }
+
+    .example {
+      overflow-wrap: anywhere;
+      padding: 12px;
+      background: #fbfaf7;
+      border: 1px solid var(--soft-line);
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    .options {
+      display: grid;
+      gap: 8px;
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .checkline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .checkline input {
+      width: 16px;
+      height: 16px;
+      accent-color: #111111;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <h1>HOM Screenshot Filename Renamer</h1>
+      <p class="intro">Drop a screenshot or select an image, then generate a GitHub-friendly filename for the HOM screenshots folder.</p>
+    </header>
+
+    <div class="grid">
+      <section class="panel" aria-labelledby="input-title">
+        <h2 id="input-title">1. Add a screenshot</h2>
+
+        <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Drop image here or select image">
+          <div>
+            <strong>Drop image here</strong>
+            <span>or click to select a PNG, JPG, GIF, or WebP file</span>
+          </div>
+        </div>
+        <input id="fileInput" type="file" accept="image/*">
+
+        <div id="preview" class="preview" aria-live="polite">
+          <img id="previewImage" alt="Selected screenshot preview">
+          <div id="fileMeta" class="meta"></div>
+        </div>
+
+        <div class="field">
+          <label for="originalName">Original filename</label>
+          <textarea id="originalName" spellcheck="false" placeholder="Screenshot 2026-05-28 at 11-44-36 Robyn Orlin et Camille la beauté des eaux qui chantent Philharmonie de Paris.png"></textarea>
+          <p class="hint">You can also paste a filename here without selecting a file.</p>
+        </div>
+
+        <div class="options">
+          <label class="checkline" for="includeTime">
+            <input id="includeTime" type="checkbox" checked>
+            Include time when detected
+          </label>
+          <label class="checkline" for="useUnderscoreSections">
+            <input id="useUnderscoreSections" type="checkbox" checked>
+            Separate date/time/title with underscores
+          </label>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="output-title">
+        <h2 id="output-title">2. Generate clean filename</h2>
+
+        <div class="field" style="margin-top: 0;">
+          <label for="renamedName">Renamed filename</label>
+          <textarea id="renamedName" spellcheck="false" placeholder="2026-05-28_11-44-36_robyn-orlin-et-camille-la-beaute-des-eaux-qui-chantent-philharmonie-de-paris.png"></textarea>
+        </div>
+
+        <div class="controls">
+          <button id="renameButton" type="button">Rename</button>
+          <button id="copyButton" class="secondary" type="button">Copy result</button>
+          <button id="downloadButton" class="secondary" type="button" disabled>Download renamed copy</button>
+        </div>
+
+        <div id="status" class="status" aria-live="polite"></div>
+
+        <div class="field">
+          <span class="label">Current rule</span>
+          <ul class="rules">
+            <li>Extracts date and time from names like <code>Screenshot 2026-05-28 at 11-44-36 ...</code>.</li>
+            <li>Converts accents and special characters to a clean lowercase slug.</li>
+            <li>Uses hyphens inside the title and underscores between main sections.</li>
+            <li>Keeps the original file extension.</li>
+          </ul>
+        </div>
+
+        <div class="example">
+          <strong>Example output:</strong><br>
+          2026-05-28_11-44-36_robyn-orlin-et-camille-la-beaute-des-eaux-qui-chantent-philharmonie-de-paris.png
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const originalName = document.getElementById('originalName');
+    const renamedName = document.getElementById('renamedName');
+    const renameButton = document.getElementById('renameButton');
+    const copyButton = document.getElementById('copyButton');
+    const downloadButton = document.getElementById('downloadButton');
+    const statusBox = document.getElementById('status');
+    const preview = document.getElementById('preview');
+    const previewImage = document.getElementById('previewImage');
+    const fileMeta = document.getElementById('fileMeta');
+    const includeTime = document.getElementById('includeTime');
+    const useUnderscoreSections = document.getElementById('useUnderscoreSections');
+
+    let selectedFile = null;
+    let objectUrl = null;
+
+    function setStatus(message, type = '') {
+      statusBox.textContent = message;
+      statusBox.className = type ? `status ${type}` : 'status';
+    }
+
+    function bytesToLabel(bytes) {
+      if (!Number.isFinite(bytes)) return '';
+      const units = ['B', 'KB', 'MB', 'GB'];
+      let value = bytes;
+      let unitIndex = 0;
+      while (value >= 1024 && unitIndex < units.length - 1) {
+        value = value / 1024;
+        unitIndex += 1;
+      }
+      return `${value.toFixed(unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+    }
+
+    function loadFile(file) {
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        setStatus('Please choose an image file.', 'error');
+        return;
+      }
+
+      selectedFile = file;
+      originalName.value = file.name;
+      downloadButton.disabled = false;
+
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      objectUrl = URL.createObjectURL(file);
+      previewImage.src = objectUrl;
+      preview.style.display = 'block';
+      fileMeta.textContent = `${file.name} · ${bytesToLabel(file.size)}`;
+
+      generateName();
+      setStatus('Image loaded. Filename suggestion generated.');
+    }
+
+    function splitExtension(filename) {
+      const trimmed = filename.trim();
+      const lastSlash = Math.max(trimmed.lastIndexOf('/'), trimmed.lastIndexOf('\\'));
+      const clean = trimmed.slice(lastSlash + 1);
+      const lastDot = clean.lastIndexOf('.');
+
+      if (lastDot <= 0 || lastDot === clean.length - 1) {
+        return { base: clean, extension: '' };
+      }
+
+      return {
+        base: clean.slice(0, lastDot),
+        extension: clean.slice(lastDot).toLowerCase()
+      };
+    }
+
+    function pad2(value) {
+      return String(value).padStart(2, '0');
+    }
+
+    function normalizeText(input) {
+      return input
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[’‘]/g, "'")
+        .replace(/[“”]/g, '"')
+        .replace(/&/g, ' and ')
+        .replace(/œ/g, 'oe')
+        .replace(/Œ/g, 'Oe')
+        .replace(/æ/g, 'ae')
+        .replace(/Æ/g, 'Ae');
+    }
+
+    function slugify(input) {
+      return normalizeText(input)
+        .toLowerCase()
+        .replace(/['"]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+    }
+
+    function extractDateTimeAndTitle(base) {
+      let working = base.trim();
+
+      working = working
+        .replace(/^screenshot\s*/i, '')
+        .replace(/^screen\s*shot\s*/i, '')
+        .replace(/^capture\s+d[’']?ecran\s*/i, '')
+        .replace(/^capture\s+d’écran\s*/i, '');
+
+      const normalizedForMatch = working.replace(/\s+/g, ' ');
+      const dateTimePattern = /(\d{4})[-_. ](\d{1,2})[-_. ](\d{1,2})(?:\s*(?:at|a|à)?\s*(\d{1,2})(?:[-:h ](\d{1,2}))?(?:[-: ](\d{1,2}))?)?/i;
+      const match = normalizedForMatch.match(dateTimePattern);
+
+      let datePart = '';
+      let timePart = '';
+      let titlePart = normalizedForMatch;
+
+      if (match) {
+        const [fullMatch, year, month, day, hour, minute, second] = match;
+        datePart = `${year}-${pad2(month)}-${pad2(day)}`;
+
+        if (hour && minute) {
+          timePart = `${pad2(hour)}-${pad2(minute)}-${pad2(second || '00')}`;
+        }
+
+        const before = normalizedForMatch.slice(0, match.index).trim();
+        const after = normalizedForMatch.slice(match.index + fullMatch.length).trim();
+        titlePart = `${before} ${after}`.trim();
+      }
+
+      titlePart = titlePart
+        .replace(/^[-_–—\s]+/, '')
+        .replace(/[-_–—\s]+$/, '')
+        .replace(/\b(at|a|à)\b\s*$/i, '')
+        .trim();
+
+      return { datePart, timePart, titlePart };
+    }
+
+    function fallbackDateFromFile() {
+      if (!selectedFile || !selectedFile.lastModified) return '';
+      const d = new Date(selectedFile.lastModified);
+      if (Number.isNaN(d.getTime())) return '';
+      return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+    }
+
+    function generateName() {
+      const source = originalName.value.trim();
+      if (!source) {
+        renamedName.value = '';
+        setStatus('Add or paste a filename first.', 'error');
+        return;
+      }
+
+      const { base, extension } = splitExtension(source);
+      const parsed = extractDateTimeAndTitle(base);
+      const datePart = parsed.datePart || fallbackDateFromFile();
+      const titleSlug = slugify(parsed.titlePart) || 'screenshot';
+      const ext = extension || '.png';
+
+      const parts = [];
+      if (datePart) parts.push(datePart);
+      if (includeTime.checked && parsed.timePart) parts.push(parsed.timePart);
+      parts.push(titleSlug);
+
+      const separator = useUnderscoreSections.checked ? '_' : '-';
+      renamedName.value = `${parts.join(separator)}${ext}`;
+      setStatus('Filename suggestion generated.');
+    }
+
+    function downloadRenamedCopy() {
+      const newName = renamedName.value.trim();
+      if (!selectedFile) {
+        setStatus('Select an image before downloading a renamed copy.', 'error');
+        return;
+      }
+      if (!newName) {
+        setStatus('Generate or enter a renamed filename first.', 'error');
+        return;
+      }
+
+      const url = URL.createObjectURL(selectedFile);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = newName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setStatus('Renamed copy download started.');
+    }
+
+    async function copyResult() {
+      const value = renamedName.value.trim();
+      if (!value) {
+        setStatus('Nothing to copy yet.', 'error');
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(value);
+        setStatus('Copied to clipboard.');
+      } catch (error) {
+        renamedName.focus();
+        renamedName.select();
+        document.execCommand('copy');
+        setStatus('Copied to clipboard.');
+      }
+    }
+
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        fileInput.click();
+      }
+    });
+
+    dropzone.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      dropzone.classList.add('is-dragging');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('is-dragging');
+    });
+
+    dropzone.addEventListener('drop', (event) => {
+      event.preventDefault();
+      dropzone.classList.remove('is-dragging');
+      const file = event.dataTransfer.files && event.dataTransfer.files[0];
+      loadFile(file);
+    });
+
+    fileInput.addEventListener('change', (event) => {
+      const file = event.target.files && event.target.files[0];
+      loadFile(file);
+    });
+
+    renameButton.addEventListener('click', generateName);
+    copyButton.addEventListener('click', copyResult);
+    downloadButton.addEventListener('click', downloadRenamedCopy);
+    includeTime.addEventListener('change', generateName);
+    useUnderscoreSections.addEventListener('change', generateName);
+
+    originalName.addEventListener('input', () => {
+      if (originalName.value.trim()) generateName();
+    });
+
+    originalName.value = 'Screenshot 2026-05-28 at 11-44-36 Robyn Orlin et Camille la beauté des eaux qui chantent Philharmonie de Paris.png';
+    generateName();
+  </script>
+</body>
+</html>
