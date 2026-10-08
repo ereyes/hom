@@ -94,70 +94,10 @@
       min-height: 36px;
     }
 
-    input[type="search"]:focus, select:focus, .btn:focus {
+    input[type="search"]:focus, select:focus {
       outline: 3px solid rgba(33, 92, 156, 0.16);
       outline-offset: 1px;
       border-color: rgba(33, 92, 156, 0.55);
-    }
-
-    .toolbar-bottom {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: .5rem;
-    }
-
-    .results {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .45rem;
-      align-items: center;
-      color: var(--muted);
-      font-size: .79rem;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: .35rem;
-      padding: .24rem .54rem;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: var(--surface);
-      white-space: nowrap;
-      color: var(--muted);
-      font-size: .74rem;
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .42rem;
-      align-items: center;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: .4rem;
-      min-height: 36px;
-      padding: .54rem .72rem;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      text-decoration: none;
-      font-size: .82rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .btn.primary {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent);
     }
 
     .gallery {
@@ -376,17 +316,8 @@
         padding: .64rem;
       }
 
-      .toolbar-bottom {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .actions {
-        width: 100%;
-      }
-
-      .actions .btn {
-        flex: 1 1 0;
+      .controls {
+        grid-template-columns: 1fr;
       }
 
       .gallery {
@@ -401,10 +332,6 @@
     }
 
     @media (max-width: 360px) {
-      .controls {
-        grid-template-columns: 1fr;
-      }
-
       .gallery {
         grid-template-columns: 1fr;
       }
@@ -433,16 +360,6 @@
               <option value="title-asc">Title A–Z</option>
               <option value="publisher-asc">Publisher A–Z</option>
             </select>
-          </div>
-        </div>
-        <div class="toolbar-bottom">
-          <div class="results">
-            <span id="resultsText">Loading…</span>
-            <span class="pill" id="sourcePill">Loading data…</span>
-          </div>
-          <div class="actions">
-            <button class="btn" id="resetBtn" type="button">Reset</button>
-            <button class="btn primary" id="downloadBtn" type="button">CSV</button>
           </div>
         </div>
       </div>
@@ -663,11 +580,7 @@
     const els = {
       search: document.getElementById('search'),
       sortBy: document.getElementById('sortBy'),
-      resetBtn: document.getElementById('resetBtn'),
-      downloadBtn: document.getElementById('downloadBtn'),
-      gallery: document.getElementById('gallery'),
-      resultsText: document.getElementById('resultsText'),
-      sourcePill: document.getElementById('sourcePill')
+      gallery: document.getElementById('gallery')
     };
 
     const params = new URLSearchParams(window.location.search);
@@ -993,32 +906,7 @@
         visible.forEach(book => els.gallery.appendChild(renderCard(book)));
       }
 
-      els.resultsText.textContent = `${visible.length} shown · ${rows.length} total`;
-    }
-
-    function csvEscape(value) {
-      const text = String(value ?? '');
-      if (/["\n,]/.test(text)) {
-        return `"${text.replace(/"/g, '""')}"`;
-      }
-      return text;
-    }
-
-    function downloadCsv() {
-      const headers = ['title','creators','publisher_or_journal','type','year','details','url','access','language','cover_url'];
-      const lines = [
-        headers.join(','),
-        ...rows.map(row => headers.map(header => csvEscape(row[header] || '')).join(','))
-      ];
-      const blob = new Blob(["\ufeff" + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'water_books_survey.csv';
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
+      els.search.placeholder = `Search among the ${rows.length} book${rows.length === 1 ? '' : 's'}…`;
     }
 
     async function loadRows() {
@@ -1028,10 +916,8 @@
         const text = await response.text();
         const liveRows = csvToRows(text);
         rows = combineRows(liveRows, FALLBACK_ROWS);
-        els.sourcePill.textContent = 'Live sheet + embedded snapshot';
       } catch (error) {
         rows = FALLBACK_ROWS.map(normalizeRow);
-        els.sourcePill.textContent = 'Embedded snapshot';
       }
 
       render();
@@ -1039,12 +925,6 @@
 
     els.search.addEventListener('input', render);
     els.sortBy.addEventListener('change', render);
-    els.resetBtn.addEventListener('click', () => {
-      els.search.value = '';
-      els.sortBy.value = 'year-desc';
-      render();
-    });
-    els.downloadBtn.addEventListener('click', downloadCsv);
 
     loadRows();
   </script>
