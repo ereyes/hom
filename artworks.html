@@ -42,10 +42,12 @@
 
     header{ max-width:1100px; margin:0 auto 8px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .sr-only{ position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
-    #q{
+    #q, #sortBy{
       border:1px solid var(--border); background:var(--card-bg); color:var(--fg);
-      padding:8px 10px; border-radius:10px; width: min(420px, 100%);
+      padding:8px 10px; border-radius:10px; font:inherit;
     }
+    #q{ width:min(420px, 100%); }
+    #sortBy{ max-width:100%; cursor:pointer; }
     #status{ font-size:12px; opacity:.7; margin-left:auto; }
 
     .grid{
@@ -205,6 +207,13 @@
   <header>
     <label class="sr-only" for="q">Filter</label>
     <input id="q" type="search" placeholder="Filter title, authors, type, keyword…" aria-label="Filter" />
+    <label class="sr-only" for="sortBy">Sort artworks</label>
+    <select id="sortBy" aria-label="Sort artworks">
+      <option value="year-desc" selected>Newest</option>
+      <option value="year-asc">Oldest</option>
+      <option value="title-asc">Title A–Z</option>
+      <option value="authors-asc">Author A–Z</option>
+    </select>
     <div id="status" aria-live="polite"></div>
   </header>
 
@@ -379,11 +388,37 @@
     }
   }
 
+  function sortRows(rows, mode){
+    return [...rows].sort((a, b) => {
+      const titleA = get(a, MAP.title) || hostname(get(a, MAP.url));
+      const titleB = get(b, MAP.title) || hostname(get(b, MAP.url));
+      const byTitle = titleA.localeCompare(titleB, undefined, { sensitivity:'base', numeric:true });
+
+      if (mode === 'year-desc' || mode === 'year-asc') {
+        const yearA = Number.parseInt(get(a, MAP.year), 10);
+        const yearB = Number.parseInt(get(b, MAP.year), 10);
+        const hasYearA = Number.isFinite(yearA);
+        const hasYearB = Number.isFinite(yearB);
+        // Undated works stay last in either chronological direction.
+        if (hasYearA !== hasYearB) return hasYearA ? -1 : 1;
+        if (hasYearA && yearA !== yearB) {
+          return mode === 'year-asc' ? yearA - yearB : yearB - yearA;
+        }
+      } else if (mode === 'authors-asc') {
+        const authorA = get(a, MAP.authors);
+        const authorB = get(b, MAP.authors);
+        if (Boolean(authorA) !== Boolean(authorB)) return authorA ? -1 : 1;
+        return authorA.localeCompare(authorB, undefined, { sensitivity:'base' }) || byTitle;
+      }
+      return byTitle;
+    });
+  }
+
   function render(rows){
     const grid = $('#grid'); grid.innerHTML = '';
     const q = ($('#q').value||'').toLowerCase().trim();
     const out = [];
-    for (const r of rows){
+    for (const r of sortRows(rows, $('#sortBy').value || 'year-desc')){
       const url = get(r, MAP.url); if (!url) continue;
       const values = [
         get(r, MAP.title), get(r, MAP.authors), get(r, MAP.type),
@@ -436,6 +471,7 @@
     });
 
     $('#q').addEventListener('input', () => render(window._rows || []));
+    $('#sortBy').addEventListener('change', () => render(window._rows || []));
   });
   </script>
 </body>
